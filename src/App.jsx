@@ -16,17 +16,15 @@ import confetti from 'canvas-confetti';
 
 /**
  * SwiftConvert: Premium Client-Side File Converter
- * UI Refined based on Industry Standards (FreeConvert Inspiration)
  */
 function App() {
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [converting, setConverting] = useState(false);
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [mergeToPdf, setMergeToPdf] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Authentication & Navigation State
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -36,18 +34,33 @@ function App() {
   const [authModal, setAuthModal] = useState({ isOpen: false, type: 'login' });
   const location = useLocation();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
-  };
+  }, []);
+
+  const handleFiles = useCallback((newFiles) => {
+    const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    const processedFiles = newFiles.map(file => ({
+      id: Math.random().toString(36).substr(2, 9),
+      file,
+      name: file.name,
+      size: (file.size / 1024 / 1024).toFixed(2),
+      status: validTypes.includes(file.type) ? 'idle' : 'error',
+      progress: 0,
+      preview: URL.createObjectURL(file),
+      format: 'webp'
+    }));
+    setFiles(prev => [...prev, ...processedFiles]);
+  }, []);
 
   const recordHistory = useCallback(async (fileName, fromFormat, toFormat) => {
     if (!user) return;
     try {
       const token = localStorage.getItem('accessToken');
-      await fetch('http://localhost:5000/api/history', {
+      const response = await fetch('http://localhost:5000/api/history', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,10 +68,84 @@ function App() {
         },
         body: JSON.stringify({ fileName, fromFormat, toFormat })
       });
+      if (response.status === 401) {
+        handleLogout();
+      }
     } catch (err) {
       console.error('Failed to record history:', err);
     }
-  }, [user]);
+  }, [user, handleLogout]);
+
+  const removeFile = (id) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const startConversion = async () => {
+    setConverting(true);
+    const updatedFiles = [...files];
+
+    try {
+      if (mergeToPdf) {
+        const validFiles = updatedFiles.filter(f => f.status !== 'error');
+        const pdfBlob = await imagesToPdf(validFiles);
+        downloadBlob(pdfBlob, 'swiftconvert_merged.pdf');
+        setFiles(prev => prev.map(f => f.status !== 'error' ? { ...f, status: 'completed', progress: 100 } : f));
+        await recordHistory('swiftconvert_merged.pdf', 'multiple', 'pdf');
+      } else {
+        for (let i = 0; i < updatedFiles.length; i++) {
+          const item = updatedFiles[i];
+          if (item.status === 'completed' || item.status === 'error') continue;
+
+          for (let p = 0; p <= 100; p += 20) {
+            updatedFiles[i] = { ...updatedFiles[i], progress: p };
+            setFiles([...updatedFiles]);
+            await new Promise(r => setTimeout(r, 50));
+          }
+
+          if (item.format === 'pdf') {
+            const pdfBlob = await imagesToPdf([item]);
+            updatedFiles[i] = { ...item, status: 'completed', convertedBlob: pdfBlob, convertedName: item.name.split('.')[0] + '.pdf', progress: 100 };
+            await recordHistory(item.name, item.file.type.split('/')[1], 'pdf');
+          } else {
+            const convertedBlob = await convertImage(item.file, item.format);
+            updatedFiles[i] = { ...item, status: 'completed', convertedBlob, convertedName: item.name.split('.')[0] + '.' + item.format, progress: 100 };
+            await recordHistory(item.name, item.file.type.split('/')[1], item.format);
+          }
+          setFiles([...updatedFiles]);
+        }
+      }
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    } catch (err) {
+      console.error('Conversion failed:', err);
+    } finally {
+      setConverting(false);
+    }
+  };
+
+  const downloadAll = () => {
+    files.forEach(file => {
+      if (file.status === 'completed' && file.convertedBlob) {
+        downloadBlob(file.convertedBlob, file.convertedName);
+      }
+    });
+  };
+
+  const onDragOver = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const onDragLeave = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const onDrop = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    handleFiles(droppedFiles);
+  }, [handleFiles]);
 
   const menuConfig = {
     '전환': [
@@ -79,102 +166,17 @@ function App() {
     '가격': []
   };
 
-  // Apply theme to document
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-
-  const handleFiles = useCallback((newFiles) => {
-    const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
-    const processedFiles = newFiles.map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      file,
-      name: file.name,
-      size: (file.size / 1024 / 1024).toFixed(2),
-      status: validTypes.includes(file.type) ? 'idle' : 'error',
-      progress: 0,
-      preview: URL.createObjectURL(file),
-      format: 'webp'
-    }));
-    setFiles(prev => [...prev, ...processedFiles]);
-  }, []);
-
-  const onDragOver = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const onDragLeave = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const onDrop = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    handleFiles(droppedFiles);
-  }, [handleFiles]);
-
-  const removeFile = (id) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
-  };
-
-  const startConversion = async () => {
-    setConverting(true);
-    const updatedFiles = [...files];
-
-    if (mergeToPdf) {
-      const validFiles = updatedFiles.filter(f => f.status !== 'error');
-      try {
-        const pdfBlob = await imagesToPdf(validFiles);
-        downloadBlob(pdfBlob, 'swiftconvert_merged.pdf');
-        setFiles(prev => prev.map(f => f.status !== 'error' ? { ...f, status: 'completed', progress: 100 } : f));
-        recordHistory('swiftconvert_merged.pdf', 'multiple', 'pdf');
-      } catch (err) { console.error(err); }
-    } else {
-      for (let i = 0; i < updatedFiles.length; i++) {
-        const item = updatedFiles[i];
-        if (item.status === 'completed' || item.status === 'error') continue;
-
-        try {
-          for (let p = 0; p <= 100; p += 20) {
-            updatedFiles[i] = { ...updatedFiles[i], progress: p };
-            setFiles([...updatedFiles]);
-            await new Promise(r => setTimeout(r, 50));
-          }
-
-          if (item.format === 'pdf') {
-            const pdfBlob = await imagesToPdf([item]);
-            updatedFiles[i] = { ...item, status: 'completed', convertedBlob: pdfBlob, convertedName: item.name.split('.')[0] + '.pdf', progress: 100 };
-            recordHistory(item.name, item.file.type.split('/')[1], 'pdf');
-          } else {
-            const convertedBlob = await convertImage(item.file, item.format);
-            updatedFiles[i] = { ...item, status: 'completed', convertedBlob, convertedName: item.name.split('.')[0] + '.' + item.format, progress: 100 };
-            recordHistory(item.name, item.file.type.split('/')[1], item.format);
-          }
-          setFiles([...updatedFiles]);
-        } catch {
-          updatedFiles[i] = { ...item, status: 'error', progress: 0 };
-          setFiles([...updatedFiles]);
-        }
-      }
-    }
-
-    setConverting(false);
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-  };
-
-  const downloadAll = () => {
-    files.forEach(file => {
-      if (file.status === 'completed' && file.convertedBlob) {
-        downloadBlob(file.convertedBlob, file.convertedName);
-      }
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', next);
+      return next;
     });
   };
-
   const totalSize = files.reduce((acc, f) => acc + parseFloat(f.size), 0).toFixed(2);
 
   const renderMainSection = () => (
@@ -298,7 +300,7 @@ function App() {
               ))}
             </div>
 
-            <div className="glass-card rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 border-indigo-200/20 dark:border-indigo-500/20 shadow-xl shadow-indigo-500/5">
+            <div className="glass-card rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 border-slate-200/50 dark:border-indigo-500/20 shadow-2xl shadow-indigo-500/10 dark:shadow-indigo-500/5">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center">
                   <FileText className="w-6 h-6 text-indigo-500" />
@@ -326,7 +328,7 @@ function App() {
                   </button>
                   <button 
                     onClick={downloadAll}
-                    className={`py-4 px-8 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 ${theme === 'dark' ? 'glass-card' : 'bg-apple-dark text-white'}`}
+                    className={`py-4 px-8 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 ${theme === 'dark' ? 'glass-card' : 'bg-[#0066CC] text-white shadow-lg shadow-indigo-500/20'}`}
                     disabled={!files.some(f => f.status === 'completed')}
                   >
                     <Download className="w-4 h-4" />

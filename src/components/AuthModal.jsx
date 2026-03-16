@@ -45,8 +45,8 @@ const AuthModal = ({ isOpen, onClose, type, theme }) => {
         setMessage({ text: '회원가입이 완료되었습니다! 이제 로그인해 주세요.', type: 'success' });
         // Optionally switch to login mode here or just keep the message
       }
-    } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+    } catch (_err) {
+      setMessage({ text: _err.message, type: 'error' });
     } finally {
       setLoading(false);
     }

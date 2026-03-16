@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, History, Zap, 
   FileText, Clock, ArrowRight,
@@ -119,9 +119,10 @@ const DashboardLayout = ({ theme, user, onLogout, children }) => {
                   history.slice(0, 5).map((item) => (
                     <motion.div
                       key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-4 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/10 group hover:border-indigo-500/30 transition-all cursor-pointer"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.02 }}
+                      className="p-4 rounded-2xl bg-white/50 dark:bg-black/20 border border-white/10 group hover:border-indigo-500/30 transition-all cursor-pointer relative"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] font-black uppercase opacity-30 tracking-widest">
@@ -133,9 +134,20 @@ const DashboardLayout = ({ theme, user, onLogout, children }) => {
                           <span className="px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/5 text-[10px] font-bold uppercase">{item.to_format}</span>
                         </div>
                       </div>
-                      <p className="text-xs font-bold truncate pr-4 opacity-80 group-hover:text-indigo-600 transition-colors">
-                        {item.file_name}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold truncate pr-4 opacity-80 group-hover:text-indigo-600 transition-colors">
+                          {item.file_name}
+                        </p>
+                        <button 
+                          className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500 opacity-0 group-hover:opacity-100 transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            alert('클라이언트측 보안 정책으로 원본 파일은 서버에 저장되지 않습니다. 다시 변환을 진행해 주세요.');
+                          }}
+                        >
+                          <Zap className="w-3 h-3 fill-current" />
+                        </button>
+                      </div>
                     </motion.div>
                   ))
                 )}

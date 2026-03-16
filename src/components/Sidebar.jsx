@@ -31,8 +31,10 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, theme, user }) => {
 
         <nav className="space-y-2">
           {menuItems.map((item) => (
-            <button
+            <motion.button
               key={item.id}
+              whileHover={{ x: 5 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${
                 activeTab === item.id 
@@ -45,7 +47,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, theme, user }) => {
                 <span className="text-sm font-bold">{item.label}</span>
               </div>
               <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === item.id ? 'rotate-90' : 'group-hover:translate-x-1'}`} />
-            </button>
+            </motion.button>
           ))}
         </nav>
       </div>
