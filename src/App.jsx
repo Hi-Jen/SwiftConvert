@@ -170,6 +170,15 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // Sync state with URL path for specific tools
+  useEffect(() => {
+    if (location.pathname === '/convert/pdf') {
+      setMergeToPdf(true);
+    } else if (location.pathname === '/convert/image') {
+      setMergeToPdf(false);
+    }
+  }, [location.pathname]);
+
   const toggleTheme = () => {
     setTheme(prev => {
       const next = prev === 'dark' ? 'light' : 'dark';
@@ -212,7 +221,18 @@ function App() {
             />
           </div>
           <div className="text-center">
-            <p className="text-sm font-bold opacity-30 tracking-tight">최대 파일 크기 50MB (Client-Only). <span className="text-indigo-500 cursor-pointer underline hover:opacity-100 transition-opacity">가입하기</span> 더 많은 것을 위해</p>
+            <p className="text-sm font-bold opacity-30 tracking-tight">
+              최대 파일 크기 50MB (Client-Only). 
+              {!user && (
+                <>
+                  {' '}<span 
+                    onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
+                    className="text-indigo-500 cursor-pointer underline hover:opacity-100 transition-opacity"
+                  >가입하기</span>를 통해 더 많은 기능을 이용해보세요.
+                </>
+              )}
+              {user && " 최상의 품질로 변환을 준비합니다."}
+            </p>
             <p className="text-xs mt-1 opacity-20">계속 진행하시면 당사의 이용 약관에 동의하는 것으로 간주됩니다.</p>
           </div>
         </div>

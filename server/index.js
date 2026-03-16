@@ -9,6 +9,7 @@ const errorMiddleware = require('./middleware/errorMiddleware');
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const historyRoutes = require('./routes/historyRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ app.use(express.json());
 // Routes Registration
 app.use('/api/auth', authRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/user', userRoutes);
 
 /**
  * @route   GET /api/auth/me

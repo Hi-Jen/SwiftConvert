@@ -48,6 +48,36 @@ class UserRepository {
       });
     });
   }
+
+  static updateEmail(userId, email) {
+    return new Promise((resolve, reject) => {
+      const sql = 'UPDATE users SET email = ? WHERE id = ?';
+      db.run(sql, [email, userId], (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+
+  static updatePassword(userId, passwordHash) {
+    return new Promise((resolve, reject) => {
+      const sql = 'UPDATE users SET password_hash = ? WHERE id = ?';
+      db.run(sql, [passwordHash, userId], (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+
+  static delete(userId) {
+    return new Promise((resolve, reject) => {
+      const sql = 'DELETE FROM users WHERE id = ?';
+      db.run(sql, [userId], (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
 }
 
 module.exports = UserRepository;
