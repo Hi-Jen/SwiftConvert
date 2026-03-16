@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Shield, CheckCircle, AlertTriangle, Key, Trash2, X, Loader2 } from 'lucide-react';
 
-const AccountView = ({ user, onLogout }) => {
+const AccountView = ({ user, onLogout, onUpdateUser }) => {
   const [email, setEmail] = useState(user?.email || '');
   const [newPassword, setNewPassword] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [modalType, setModalType] = useState(null); // 'password' | 'delete' | null
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
+
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -16,7 +18,7 @@ const AccountView = ({ user, onLogout }) => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/user/profile', {
+      const response = await fetch(`${apiUrl}/api/user/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -28,6 +30,7 @@ const AccountView = ({ user, onLogout }) => {
       const data = await response.json();
       if (response.ok) {
         setStatusMessage({ type: 'success', text: data.message });
+        if (onUpdateUser) onUpdateUser({ email }); // Sync state with parent
       } else {
         setStatusMessage({ type: 'error', text: data.message });
       }
@@ -45,7 +48,7 @@ const AccountView = ({ user, onLogout }) => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/user/password', {
+      const response = await fetch(`${apiUrl}/api/user/password`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +76,7 @@ const AccountView = ({ user, onLogout }) => {
     setIsUpdating(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/user/account', {
+      const response = await fetch(`${apiUrl}/api/user/account`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

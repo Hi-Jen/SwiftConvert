@@ -41,6 +41,12 @@ function App() {
     setUser(null);
   }, []);
 
+  const handleUpdateUser = useCallback((updatedUser) => {
+    const newUser = { ...user, ...updatedUser };
+    localStorage.setItem('user', JSON.stringify(newUser));
+    setUser(newUser);
+  }, [user]);
+
   const handleFiles = useCallback((newFiles) => {
     const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
     const processedFiles = newFiles.map(file => ({
@@ -60,7 +66,8 @@ function App() {
     if (!user) return;
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/history', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -490,6 +497,7 @@ function App() {
               theme={theme} 
               user={user} 
               onLogout={handleLogout}
+              onUpdateUser={handleUpdateUser}
             >
               <div className="flex justify-center">
                 {renderMainSection()}

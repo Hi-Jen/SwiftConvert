@@ -11,6 +11,14 @@ class UserService {
       error.status = 400;
       throw error;
     }
+
+    // 이메일 정규식 유효성 검사
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      const error = new Error('올바른 이메일 형식이 아닙니다.');
+      error.status = 400;
+      throw error;
+    }
     
     // Check if email is already taken by another user
     const existingUser = await UserRepository.findByEmail(email);
@@ -26,6 +34,13 @@ class UserService {
   static async changePassword(userId, newPassword) {
     if (!userId || !newPassword) {
       const error = new Error('새 비밀번호를 입력해 주세요.');
+      error.status = 400;
+      throw error;
+    }
+
+    // 비밀번호 길이 검사 (최소 8자)
+    if (newPassword.length < 8) {
+      const error = new Error('비밀번호는 최소 8자 이상이어야 합니다.');
       error.status = 400;
       throw error;
     }

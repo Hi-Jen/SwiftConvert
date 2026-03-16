@@ -9,7 +9,7 @@ import HistoryView from './dashboard/HistoryView';
 import AccountView from './dashboard/AccountView';
 import WorkspaceView from './dashboard/WorkspaceView';
 
-const DashboardLayout = ({ theme, user, onLogout, children }) => {
+const DashboardLayout = ({ theme, user, onLogout, onUpdateUser, children }) => {
   const [activeTab, setActiveTab] = useState('workspace');
   const [history, setHistory] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -18,7 +18,8 @@ const DashboardLayout = ({ theme, user, onLogout, children }) => {
     const fetchHistory = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:5000/api/history', {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/history`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -40,7 +41,7 @@ const DashboardLayout = ({ theme, user, onLogout, children }) => {
       case 'history':
         return <HistoryView history={history} />;
       case 'account':
-        return <AccountView user={user} onLogout={onLogout} />;
+        return <AccountView user={user} onLogout={onLogout} onUpdateUser={onUpdateUser} />;
       case 'workspace':
       default:
         return (

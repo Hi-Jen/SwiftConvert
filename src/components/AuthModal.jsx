@@ -8,7 +8,7 @@ const AuthModal = ({ isOpen, onClose, type, theme }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  const API_URL = 'http://localhost:5000/api/auth';
+  const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
