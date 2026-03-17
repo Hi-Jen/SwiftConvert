@@ -92,12 +92,12 @@ const DocConverter = ({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto pt-12 pb-20 px-4 relative">
+    <div className="w-full max-w-5xl mx-auto pt-12 pb-20 px-4 relative">
       <AnimatePresence>
         {user?.role !== 'PRO' && (
           <PaywallOverlay 
             title="문서 변환은 PRO 전용입니다" 
-            description="Word 파일을 PDF로 정밀 변환하는 기능은 PRO 요금제에서 제공됩니다. 지금 업그레이드하세요." 
+            description={"Word 파일을 PDF로 정밀 변환하는 기능은 PRO 요금제에서 제공됩니다. 지금 업그레이드하세요." }
           />
         )}
       </AnimatePresence>
