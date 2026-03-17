@@ -29,10 +29,17 @@ const NavDropdown = ({ isOpen, items, theme }) => {
                     : 'hover:bg-black/5 text-black/70 hover:text-black'
                 }`}
               >
-                <div className="flex flex-col">
-                  <span>{item.label}</span>
+                <div className="flex flex-col grow min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate">{item.label}</span>
+                    {item.isPro && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-500 text-[8px] font-black uppercase tracking-tighter shrink-0">
+                        PRO
+                      </span>
+                    )}
+                  </div>
                   {item.description && (
-                    <span className="text-[10px] opacity-40 font-normal">{item.description}</span>
+                    <span className="text-[10px] opacity-40 font-normal truncate">{item.description}</span>
                   )}
                 </div>
                 <ChevronRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />

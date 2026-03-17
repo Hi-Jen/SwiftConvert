@@ -53,16 +53,18 @@ const UploadZone = ({
         </div>
         <div className="text-center">
           <p className="text-sm font-bold opacity-30 tracking-tight">
-            최대 파일 크기 50MB (Client-Only). 
-            {!user && (
+            최대 {user?.role === 'PRO' ? '100MB' : '10MB'} (Client-Only). 
+            {!user ? (
               <>
                 {' '}<span 
                   onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
                   className="text-indigo-500 cursor-pointer underline hover:opacity-100 transition-opacity"
                 >가입하기</span>를 통해 더 많은 기능을 이용해보세요.
               </>
+            ) : (
+              user?.role !== 'PRO' && " PRO로 업그레이드하고 100MB까지 올리세요."
             )}
-            {user && " 최상의 품질로 변환을 준비합니다."}
+            {user?.role === 'PRO' && " PRO 등급: 100MB까지 지원됩니다."}
           </p>
           <p className="text-xs mt-1 opacity-20">계속 진행하시면 당사의 이용 약관에 동의하는 것으로 간주됩니다.</p>
         </div>

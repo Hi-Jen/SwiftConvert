@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Minimize, Download, Loader2, Gauge, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
+import { Minimize, Download, Loader2, Gauge, CheckCircle2, AlertCircle, FileText, Lock } from 'lucide-react';
 import UploadZone from '../../components/shared/UploadZone';
 import ActionBtn from '../../components/shared/ActionBtn';
 import { compressPdf, downloadBlob } from '../../utils/converter';
 import confetti from 'canvas-confetti';
+import PaywallOverlay from '../../components/shared/PaywallOverlay';
 
 const PdfCompressor = ({ 
   files, 
@@ -99,7 +100,15 @@ const PdfCompressor = ({
   ];
 
   return (
-    <div className="w-full max-w-5xl mx-auto pt-12 pb-20 px-4">
+    <div className="w-full max-w-5xl mx-auto pt-12 pb-20 px-4 relative">
+      <AnimatePresence>
+        {quality === 0.2 && user?.role !== 'PRO' && (
+          <PaywallOverlay 
+            title="최대 압축은 PRO 전용입니다" 
+            description="복잡한 알고리즘을 사용한 고효율 압축 기능은 PRO 사용자만 이용할 수 있습니다." 
+          />
+        )}
+      </AnimatePresence>
       <header className="mb-10 text-center">
         <h1 className="text-3xl font-black mb-2 tracking-tight">PDF 용량 압축</h1>
         <p className="opacity-60 text-sm font-medium leading-relaxed">
@@ -188,11 +197,12 @@ const PdfCompressor = ({
               <ActionBtn 
                 onClick={handleCompress}
                 variant="primary"
-                className="w-full py-5 shadow-xl shadow-indigo-500/25"
+                className="w-full py-5 shadow-xl shadow-indigo-500/25 relative overflow-hidden"
                 disabled={compressing || !selectedPdf}
                 loading={compressing}
                 icon={Minimize}
               >
+                {quality === 0.2 && user?.role !== 'PRO' && <Lock className="w-3.5 h-3.5 absolute right-4 top-1/2 -translate-y-1/2 opacity-50" />}
                 PDF 압축 시작하기
               </ActionBtn>
               

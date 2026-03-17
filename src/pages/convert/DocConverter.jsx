@@ -7,6 +7,7 @@ import mammoth from 'mammoth';
 import { jsPDF } from 'jspdf';
 import { downloadBlob } from '../../utils/converter';
 import confetti from 'canvas-confetti';
+import PaywallOverlay from '../../components/shared/PaywallOverlay';
 
 const DocConverter = ({ 
   files, 
@@ -91,7 +92,15 @@ const DocConverter = ({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto pt-12 pb-20 px-4">
+    <div className="w-full max-w-6xl mx-auto pt-12 pb-20 px-4 relative">
+      <AnimatePresence>
+        {user?.role !== 'PRO' && (
+          <PaywallOverlay 
+            title="문서 변환은 PRO 전용입니다" 
+            description="Word 파일을 PDF로 정밀 변환하는 기능은 PRO 요금제에서 제공됩니다. 지금 업그레이드하세요." 
+          />
+        )}
+      </AnimatePresence>
       <header className="mb-10 text-center">
         <h1 className="text-3xl font-black mb-2 tracking-tight">문서 변환 및 미리보기</h1>
         <p className="opacity-60 text-sm font-medium">Word(DOCX) 파일을 즉시 미리보고 PDF로 변환하세요.</p>

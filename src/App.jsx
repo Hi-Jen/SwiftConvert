@@ -4,7 +4,7 @@ import {
   Upload, X, CheckCircle, AlertCircle, 
   Download, Zap, Loader2, Sun, Moon, FileText, 
   ChevronDown, Search, ShieldCheck, Globe, Files, Menu, Trash2,
-  RefreshCw, Minimize, Wrench, Scissors, Hash, FileType, FileCode
+  RefreshCw, Minimize, Wrench, Scissors, Hash, FileType, FileCode, Sparkles
 } from 'lucide-react';
 import { useLocation, Link, Routes, Route } from 'react-router-dom';
 import Background from './components/Background';
@@ -23,6 +23,7 @@ import PdfSplitter from './pages/split/PdfSplitter';
 import Watermarker from './pages/tools/Watermarker';
 import PdfPageNumberer from './pages/tools/PdfPageNumberer';
 import DocConverter from './pages/convert/DocConverter';
+import Pricing from './pages/Pricing';
 import { imagesToPdf, downloadBlob } from './utils/converter';
 import confetti from 'canvas-confetti';
 import JSZip from 'jszip';
@@ -61,14 +62,19 @@ function App() {
   }, [user]);
 
   const handleFiles = useCallback((newFiles) => {
-    const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    // Role-based limits: GUEST/FREE: 10MB, PRO: 100MB
+    const isPro = user?.role === 'PRO';
+    const maxSize = isPro ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+    const maxSizeLabel = isPro ? '100MB' : '10MB';
+
+    const validTypes = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     const processedFiles = newFiles.map(file => {
       const isInvalidType = !validTypes.includes(file.type);
-      const isTooLarge = file.size > 50 * 1024 * 1024; // 50MB
+      const isTooLarge = file.size > maxSize;
 
       let errorDetail = '';
-      if (isInvalidType) errorDetail = '지원하지 않는 파일 형식입니다. (PNG, JPG, WebP 가능)';
-      else if (isTooLarge) errorDetail = '파일 크기가 너무 큽니다. (최대 50MB)';
+      if (isInvalidType) errorDetail = '지원하지 않는 파일 형식입니다.';
+      else if (isTooLarge) errorDetail = `파일 크기가 너무 큽니다. (최대 ${maxSizeLabel}${!isPro ? ', PRO는 100MB' : ''})`;
 
       return {
         id: Math.random().toString(36).substr(2, 9),
@@ -78,12 +84,12 @@ function App() {
         status: (isInvalidType || isTooLarge) ? 'error' : 'idle',
         errorDetail,
         progress: 0,
-        preview: validTypes.includes(file.type) ? URL.createObjectURL(file) : null,
+        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
         format: 'webp'
       };
     });
     setFiles(prev => [...prev, ...processedFiles]);
-  }, []);
+  }, [user]);
 
   const handleClearAll = () => {
     setFiles(prev => {
@@ -203,6 +209,11 @@ function App() {
       const file = completedFiles[0];
       downloadBlob(file.convertedBlob, file.convertedName);
     } else {
+      // Restriction: Batch ZIP download is PRO only
+      if (user?.role !== 'PRO') {
+        alert('여러 파일을 한 번에 ZIP으로 다운로드하려면 PRO 기능이 필요합니다.');
+        return;
+      }
       const zip = new JSZip();
       completedFiles.forEach(file => {
         zip.file(file.convertedName, file.convertedBlob);
@@ -261,6 +272,15 @@ function App() {
     { category: '가격', path: '/pricing', items: [] }
   ];
 
+  // Extend menuConfig items with pro requirement
+  const upgradedMenuConfig = menuConfig.map(cat => ({
+    ...cat,
+    items: cat.items.map(item => ({
+      ...item,
+      isPro: item.path === '/convert/doc' || (cat.category === '압축 및 분할' && item.label === 'PDF 압축')
+    }))
+  }));
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
@@ -314,6 +334,7 @@ function App() {
       <Route path="/split/pdf" element={<PdfSplitter {...commonProps} />} />
       <Route path="/tools/watermark" element={<Watermarker {...commonProps} />} />
       <Route path="/tools/page-number" element={<PdfPageNumberer {...commonProps} />} />
+      <Route path="/pricing" element={<Pricing {...commonProps} onUpdateUser={handleUpdateUser} />} />
     </Routes>
   );
 
@@ -346,7 +367,7 @@ function App() {
             </Link>
             
             <div className="hidden lg:flex items-center gap-6">
-              {menuConfig.map((menu) => (
+              {upgradedMenuConfig.map((menu) => (
                 <div 
                   key={menu.category} 
                   className="relative h-[72px] flex items-center"
