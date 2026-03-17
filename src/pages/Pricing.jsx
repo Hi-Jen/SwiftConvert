@@ -64,7 +64,7 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
   ];
 
   return (
-    <div className="w-full max-w-6xl mx-auto pt-16 pb-24 px-4 text-black dark:text-white">
+    <div className={`w-full max-w-6xl mx-auto pt-16 pb-24 px-4 ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>
       <div className="text-center mb-16">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -74,8 +74,8 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
           <Sparkles className="w-3.5 h-3.5 fill-current" />
           Pricing Plans
         </motion.div>
-        <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">당신에게 맞는 플랜을 선택하세요</h1>
-        <p className="opacity-50 text-lg font-medium max-w-2xl mx-auto">
+        <h1 className={`text-4xl md:text-5xl font-black mb-6 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>당신에게 맞는 플랜을 선택하세요</h1>
+        <p className={`opacity-50 text-lg font-medium max-w-2xl mx-auto ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
           커피 한 잔 가격으로 모든 제약을 해제하고 SwiftConvert의 강력한 도구들을 무제한으로 이용하세요.
         </p>
       </div>
@@ -89,8 +89,8 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
             transition={{ delay: i * 0.1 }}
             className={`relative p-10 rounded-[40px] border transition-all duration-500 ${
               plan.featured 
-                ? 'bg-white dark:bg-indigo-900/40 border-indigo-500 shadow-2xl shadow-indigo-500/20' 
-                : 'bg-white/80 dark:bg-white/10 border-black/5 dark:border-white/10 backdrop-blur-md'
+                ? (theme === 'dark' ? 'bg-indigo-900/40 border-indigo-500 shadow-2xl shadow-indigo-500/20' : 'bg-white border-indigo-500 shadow-2xl shadow-indigo-500/20')
+                : (theme === 'dark' ? 'bg-white/10 border-white/10 backdrop-blur-md' : 'bg-white border-black/5 shadow-sm')
             }`}
           >
             {plan.featured && (
@@ -100,8 +100,8 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
             )}
 
             <div className="mb-8">
-              <h3 className="text-2xl font-black mb-2 text-indigo-600 dark:text-indigo-400">{plan.name}</h3>
-              <p className="text-sm opacity-60 font-medium h-10">{plan.desc}</p>
+              <h3 className={`text-2xl font-black mb-2 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`}>{plan.name}</h3>
+              <p className={`text-sm opacity-70 font-medium h-10 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{plan.desc}</p>
             </div>
 
             <div className="flex items-baseline gap-1 mb-8">
@@ -147,7 +147,7 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white dark:bg-zinc-900 p-8 rounded-[40px] border border-indigo-500/20 shadow-2xl overflow-hidden text-black dark:text-white"
+              className={`relative w-full max-w-md p-8 rounded-[40px] border border-indigo-500/20 shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-900'}`}
             >
                <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-500 to-purple-600" />
                <button 

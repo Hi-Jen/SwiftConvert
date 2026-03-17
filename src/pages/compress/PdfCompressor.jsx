@@ -102,10 +102,10 @@ const PdfCompressor = ({
   return (
     <div className="w-full max-w-5xl mx-auto pt-12 pb-20 px-4 relative">
       <AnimatePresence>
-        {quality === 0.2 && user?.role !== 'PRO' && (
+        {user?.role !== 'PRO' && (
           <PaywallOverlay 
-            title="최대 압축은 PRO 전용입니다" 
-            description="복잡한 알고리즘을 사용한 고효율 압축 기능은 PRO 사용자만 이용할 수 있습니다." 
+            title="PDF 압축은 PRO 전용입니다" 
+            description="고성능 알고리즘을 사용한 PDF 용량 최적화 기능은 PRO 요금제에서 제공됩니다. 지금 업그레이드하세요." 
           />
         )}
       </AnimatePresence>
