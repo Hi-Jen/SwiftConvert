@@ -1,18 +1,33 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Check, Zap, Shield, Globe, Cpu, Download, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Zap, Shield, Globe, Cpu, Download, Sparkles, Copy, X, CreditCard } from 'lucide-react';
 import ActionBtn from '../components/shared/ActionBtn';
 
 const Pricing = ({ theme, user, onUpdateUser }) => {
-  const handleUpgrade = () => {
-    // In a real app, this would trigger Stripe/Payment flow
-    // For this demo, we'll just toggle the user role
+  const [showPayment, setShowPayment] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+
+  const handleUpgradeClick = () => {
     if (user) {
-      onUpdateUser({ role: user.role === 'PRO' ? 'FREE' : 'PRO' });
-      alert(user.role === 'PRO' ? 'FREE 등급으로 변경되었습니다.' : 'PRO 등급으로 업그레이드되었습니다! 모든 기능이 해제되었습니다.');
+      setShowPayment(true);
     } else {
       alert('로그인이 필요한 기능입니다.');
     }
+  };
+
+  const copyAccount = () => {
+    navigator.clipboard.writeText('100004590889');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleManualConfirm = () => {
+    // In a real app, this sends a notification to the admin
+    alert('입금 확인 요청이 전송되었습니다. 관리자 확인 후 등급이 조정됩니다.');
+    setShowPayment(false);
+    
+    // For demo purposes, we can still toggle it or leave it as is
+    // onUpdateUser({ role: 'PRO' }); 
   };
 
   const plans = [
@@ -32,7 +47,7 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
     },
     {
       name: 'Pro',
-      price: '2,900',
+      price: '1,500',
       desc: '생산성을 극대화하고 싶은 파워 유저',
       features: [
         '파일당 최대 100MB 확장',
@@ -49,7 +64,7 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
   ];
 
   return (
-    <div className="w-full max-w-6xl mx-auto pt-16 pb-24 px-4">
+    <div className="w-full max-w-6xl mx-auto pt-16 pb-24 px-4 text-black dark:text-white">
       <div className="text-center mb-16">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -74,8 +89,8 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
             transition={{ delay: i * 0.1 }}
             className={`relative p-10 rounded-[40px] border transition-all duration-500 ${
               plan.featured 
-                ? 'bg-white dark:bg-indigo-950/20 border-indigo-500 shadow-2xl shadow-indigo-500/20' 
-                : 'bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10'
+                ? 'bg-white dark:bg-indigo-900/40 border-indigo-500 shadow-2xl shadow-indigo-500/20' 
+                : 'bg-white/80 dark:bg-white/10 border-black/5 dark:border-white/10 backdrop-blur-md'
             }`}
           >
             {plan.featured && (
@@ -85,8 +100,8 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
             )}
 
             <div className="mb-8">
-              <h3 className="text-2xl font-black mb-2">{plan.name}</h3>
-              <p className="text-sm opacity-50 font-medium h-10">{plan.desc}</p>
+              <h3 className="text-2xl font-black mb-2 text-indigo-600 dark:text-indigo-400">{plan.name}</h3>
+              <p className="text-sm opacity-60 font-medium h-10">{plan.desc}</p>
             </div>
 
             <div className="flex items-baseline gap-1 mb-8">
@@ -106,7 +121,7 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
             </div>
 
             <ActionBtn
-              onClick={handleUpgrade}
+              onClick={handleUpgradeClick}
               variant={plan.featured ? 'primary' : 'secondary'}
               className="w-full py-5 rounded-2xl font-black text-sm"
               disabled={plan.current}
@@ -118,19 +133,75 @@ const Pricing = ({ theme, user, onUpdateUser }) => {
         ))}
       </div>
 
-      <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8">
-        {[
-          { icon: Shield, title: '100% 안전', desc: '데이터는 기기 외부로 유출되지 않습니다.' },
-          { icon: Globe, title: '무제한 트래픽', desc: '언제 어디서나 무거운 파일도 거뜬하게.' },
-          { icon: Cpu, title: '고성능 처리', desc: 'Web Worker를 이용한 백그라운드 연산.' }
-        ].map((item, i) => (
-          <div key={i} className="text-center p-6 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all">
-            <item.icon className="w-8 h-8 mx-auto mb-4 text-indigo-600" />
-            <h4 className="font-bold text-sm mb-1">{item.title}</h4>
-            <p className="text-xs font-medium">{item.desc}</p>
+      <AnimatePresence>
+        {showPayment && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPayment(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-zinc-900 p-8 rounded-[40px] border border-indigo-500/20 shadow-2xl overflow-hidden text-black dark:text-white"
+            >
+               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-500 to-purple-600" />
+               <button 
+                 onClick={() => setShowPayment(false)}
+                 className="absolute top-6 right-6 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+               >
+                 <X className="w-5 h-5 opacity-40" />
+               </button>
+
+               <div className="flex flex-col items-center text-center">
+                 <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6">
+                   <CreditCard className="w-8 h-8 text-indigo-600" />
+                 </div>
+                 <h2 className="text-2xl font-black mb-2">PRO 업그레이드 결제</h2>
+                 <p className="text-sm opacity-50 font-medium mb-8">아래 계좌로 입금 후 확인 버튼을 눌러주세요.</p>
+
+                 <div className="w-full space-y-4 mb-8">
+                   <div className="p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                     <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1 text-left">입금 계좌 (Toss Bank)</p>
+                     <div className="flex items-center justify-between">
+                       <span className="text-lg font-black tracking-tight">1000-0459-0889</span>
+                       <button 
+                         onClick={copyAccount}
+                         className={`p-2 rounded-xl transition-all ${copied ? 'bg-green-500 text-white' : 'bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20'}`}
+                       >
+                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                       </button>
+                     </div>
+                   </div>
+
+                   <div className="p-6 rounded-3xl bg-indigo-500/5 border border-indigo-500/10">
+                     <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1 text-left">입금 금액</p>
+                     <div className="flex items-baseline gap-1">
+                       <span className="text-2xl font-black text-indigo-600">1,500</span>
+                       <span className="text-sm font-bold opacity-40">원</span>
+                     </div>
+                   </div>
+                 </div>
+
+                 <ActionBtn
+                   onClick={handleManualConfirm}
+                   variant="primary"
+                   className="w-full py-5 rounded-2xl font-black text-sm"
+                 >
+                   입금 완료 및 확인 요청
+                 </ActionBtn>
+                 <p className="mt-4 text-[10px] font-medium opacity-30 text-black dark:text-white">
+                   입금 확인 후 24시간 이내에 등급이 상향 조정됩니다.
+                 </p>
+               </div>
+            </motion.div>
           </div>
-        ))}
-      </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
