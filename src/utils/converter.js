@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import * as pdfjsLib from 'pdfjs-dist';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 // Configure pdfjs-dist worker
 if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
@@ -221,6 +222,62 @@ export const addWatermark = async (imageBlob, options = {}) => {
       resolve(blob);
     }, 'image/png');
   });
+};
+
+/**
+ * Splits a PDF into multiple documents based on page ranges.
+ * @param {File} file 
+ * @param {Array<number>} pageIndices (0-indexed)
+ * @returns {Promise<Blob>}
+ */
+export const splitPdf = async (file, pageIndices) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const newPdf = await PDFDocument.create();
+  
+  const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
+  copiedPages.forEach((page) => newPdf.addPage(page));
+  
+  const pdfBytes = await newPdf.save();
+  return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+/**
+ * Adds page numbers to an existing PDF doc.
+ * @param {File} file 
+ * @param {Object} options { position, color, fontSize }
+ * @returns {Promise<Blob>}
+ */
+export const addPageNumbers = async (file, options = {}) => {
+  const { position = 'bottom-center', fontSize = 12 } = options;
+  const arrayBuffer = await file.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const pages = pdfDoc.getPages();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+  pages.forEach((page, i) => {
+    const { width, height } = page.getSize();
+    const text = `${i + 1} / ${pages.length}`;
+    const textWidth = font.widthOfTextAtSize(text, fontSize);
+    
+    let x, y;
+    const margin = 30;
+
+    switch (position) {
+      case 'bottom-left': x = margin; y = margin; break;
+      case 'bottom-right': x = width - textWidth - margin; y = margin; break;
+      case 'top-left': x = margin; y = height - margin; break;
+      case 'top-right': x = width - textWidth - margin; y = height - margin; break;
+      case 'top-center': x = (width - textWidth) / 2; y = height - margin; break;
+      case 'bottom-center':
+      default: x = (width - textWidth) / 2; y = margin; break;
+    }
+
+    page.drawText(text, { x, y, size: fontSize, font, color: rgb(0, 0, 0) });
+  });
+
+  const pdfBytes = await pdfDoc.save();
+  return new Blob([pdfBytes], { type: 'application/pdf' });
 };
 
 export const downloadBlob = (blob, fileName) => {

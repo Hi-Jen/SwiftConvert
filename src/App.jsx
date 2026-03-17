@@ -4,7 +4,7 @@ import {
   Upload, X, CheckCircle, AlertCircle, 
   Download, Zap, Loader2, Sun, Moon, FileText, 
   ChevronDown, Search, ShieldCheck, Globe, Files, Menu, Trash2,
-  RefreshCw, Minimize, Wrench
+  RefreshCw, Minimize, Wrench, Scissors, Hash, FileType, FileCode
 } from 'lucide-react';
 import { useLocation, Link, Routes, Route } from 'react-router-dom';
 import Background from './components/Background';
@@ -19,7 +19,10 @@ import ImageConverter from './pages/convert/ImageConverter';
 import PdfConverter from './pages/convert/PdfConverter';
 import ImageCompressor from './pages/compress/ImageCompressor';
 import PdfCompressor from './pages/compress/PdfCompressor';
+import PdfSplitter from './pages/split/PdfSplitter';
 import Watermarker from './pages/tools/Watermarker';
+import PdfPageNumberer from './pages/tools/PdfPageNumberer';
+import DocConverter from './pages/convert/DocConverter';
 import { imagesToPdf, downloadBlob } from './utils/converter';
 import confetti from 'canvas-confetti';
 import JSZip from 'jszip';
@@ -305,9 +308,12 @@ function App() {
       <Route path="/" element={<Home theme={theme} renderMainSection={() => <ImageConverter {...commonProps} />} />} />
       <Route path="/convert/image" element={<ImageConverter {...commonProps} />} />
       <Route path="/convert/pdf" element={<PdfConverter {...commonProps} />} />
+      <Route path="/convert/doc" element={<DocConverter {...commonProps} />} />
       <Route path="/compress/image" element={<ImageCompressor {...commonProps} />} />
       <Route path="/compress/pdf" element={<PdfCompressor {...commonProps} />} />
+      <Route path="/split/pdf" element={<PdfSplitter {...commonProps} />} />
       <Route path="/tools/watermark" element={<Watermarker {...commonProps} />} />
+      <Route path="/tools/page-number" element={<PdfPageNumberer {...commonProps} />} />
     </Routes>
   );
 
