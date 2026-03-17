@@ -115,9 +115,8 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className={`p-4 rounded-2xl flex items-center gap-3 ${
-              statusMessage.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
-            } font-bold text-sm`}
+            className={`p-4 rounded-2xl flex items-center gap-3 ${statusMessage.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+              } font-bold text-sm`}
           >
             {statusMessage.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
             {statusMessage.text}
@@ -141,9 +140,9 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
             <label className="text-xs font-black uppercase opacity-40 ml-1">이메일 주소</label>
             <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus-within:border-indigo-500/30 transition-all">
               <Mail className="w-5 h-5 opacity-30" />
-              <input 
-                type="email" 
-                value={email} 
+              <input
+                type="email"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-transparent grow outline-none font-bold text-sm"
                 placeholder="이메일을 입력해 주세요"
@@ -152,7 +151,7 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button 
+            <button
               onClick={handleUpdateProfile}
               disabled={isUpdating || email === user?.email}
               className="py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50 disabled:grayscale transition-all flex items-center justify-center gap-2"
@@ -160,7 +159,7 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
               {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
               정보 업데이트
             </button>
-            <button 
+            <button
               onClick={() => setModalType('password')}
               className="py-4 bg-black/5 dark:bg-white/5 font-black rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2"
             >
@@ -175,14 +174,14 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 text-red-500">
             <Shield className="w-5 h-5" />
-            <span className="font-bold">위험 구역</span>
+            <span className="font-bold">계정 삭제</span>
           </div>
-          <button 
+          <button
             onClick={() => setModalType('delete')}
             className="px-6 py-3 rounded-xl bg-red-500/10 text-red-500 text-xs font-black hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
-            계정 삭제
+            삭제
           </button>
         </div>
       </div>
@@ -191,14 +190,14 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
       <AnimatePresence>
         {modalType && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setModalType(null)}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -221,8 +220,8 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
                   </div>
                   <div className="space-y-4">
                     <div className="px-5 py-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus-within:border-indigo-500/30 transition-all">
-                      <input 
-                        type="password" 
+                      <input
+                        type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="새 비밀번호"
@@ -230,7 +229,7 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
                         autoFocus
                       />
                     </div>
-                    <button 
+                    <button
                       onClick={handleChangePassword}
                       disabled={!newPassword || isUpdating}
                       className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
@@ -255,14 +254,14 @@ const AccountView = ({ user, onLogout, onUpdateUser }) => {
                     <p className="text-sm opacity-40 font-medium mt-2 leading-relaxed">계정을 삭제하면 모든 변환 기록과 설정이 영구적으로 사라집니다. 정말 진행하시겠습니까?</p>
                   </div>
                   <div className="flex flex-col gap-3">
-                    <button 
+                    <button
                       onClick={handleDeleteAccount}
                       disabled={isUpdating}
                       className="w-full py-4 bg-red-500 text-white font-black rounded-2xl shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 transition-all active:scale-95"
                     >
                       {isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : '네, 삭제하겠습니다'}
                     </button>
-                    <button 
+                    <button
                       onClick={() => setModalType(null)}
                       className="w-full py-4 bg-black/5 dark:bg-white/5 font-black rounded-2xl transition-all active:scale-95"
                     >
