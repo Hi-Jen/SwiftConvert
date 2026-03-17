@@ -28,8 +28,8 @@ dist-ssr
 .env.example
 server/.env
 server/.env.example
-server/*.db
-server/*.db-journal
+server/**/*.db
+server/**/*.db-journal
 
 # Logs & Temp
 lint_output.txt
