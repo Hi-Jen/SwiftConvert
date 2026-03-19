@@ -3,27 +3,29 @@ import { motion } from 'framer-motion';
 import { Files, Globe, ShieldCheck } from 'lucide-react';
 import ActionBtn from '../components/shared/ActionBtn';
 
-const Home = ({ theme, renderMainSection }) => {
+const Home = ({ theme, user, renderMainSection }) => {
   return (
-    <main className="grow flex flex-col items-center pt-16 md:pt-24 px-4 pb-20">
-      <header className="text-center max-w-2xl mb-12">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-5xl font-black mb-6 tracking-tight"
-        >
-          SwiftConvert
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-lg md:text-xl font-medium opacity-60 leading-relaxed"
-        >
-          클라이언트 사이드에서 안전하고 빠르게 파일을 변환하세요.<br />
-          모든 작업은 브라우저 내에서 직접 수행됩니다.
-        </motion.p>
-      </header>
+    <main className={`grow flex flex-col items-center ${user ? 'pt-0' : 'pt-16 md:pt-24'} px-4 pb-20`}>
+      {!user && (
+        <header className="text-center max-w-2xl mb-12">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-black mb-6 tracking-tight"
+          >
+            SwiftConvert
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg md:text-xl font-medium opacity-60 leading-relaxed"
+          >
+            클라이언트 사이드에서 안전하고 빠르게 파일을 변환하세요.<br />
+            모든 작업은 브라우저 내에서 직접 수행됩니다.
+          </motion.p>
+        </header>
+      )}
 
       {renderMainSection()}
 

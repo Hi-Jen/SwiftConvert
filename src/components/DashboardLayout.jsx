@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { 
   History, Zap, 
   Menu, X
@@ -13,6 +14,12 @@ const DashboardLayout = ({ theme, user, onLogout, onUpdateUser, children }) => {
   const [activeTab, setActiveTab] = useState('workspace');
   const [history, setHistory] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
+
+  // URL이 변경될 때(상단 네비게이션바 클릭 등) 작업 공간 탭으로 자동 전환
+  useEffect(() => {
+    setActiveTab('workspace');
+  }, [location.pathname]);
 
   useEffect(() => {
     const fetchHistory = async () => {

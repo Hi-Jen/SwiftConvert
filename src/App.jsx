@@ -268,7 +268,6 @@ function App() {
         { label: '페이지 번호 삽입', path: '/tools/page-number', description: 'PDF 문서에 일괄 번호 매기기' },
       ]
     },
-    { category: 'API', path: '/api', items: [] },
     { category: '가격', path: '/pricing', items: [] }
   ];
 
@@ -330,7 +329,7 @@ function App() {
 
   const renderMainContent = () => (
     <Routes>
-      <Route path="/" element={<Home theme={theme} renderMainSection={() => <ImageConverter {...commonProps} />} />} />
+      <Route path="/" element={<Home theme={theme} user={user} renderMainSection={() => <ImageConverter {...commonProps} />} />} />
       <Route path="/convert/image" element={<ImageConverter {...commonProps} />} />
       <Route path="/convert/pdf" element={<PdfConverter {...commonProps} />} />
       <Route path="/convert/doc" element={<DocConverter {...commonProps} />} />
